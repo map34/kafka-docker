@@ -1,9 +1,11 @@
 const kafka = require('kafka-node');
 const async = require('async');
+const path = require('path');
 const { execSync } = require('child_process');
 // stderr is sent to stdout of parent process
 // you can set options.stdio if you want it to go elsewhere
-const stdout = execSync('cat .hostnames');
+const hostnamesPath = path.resolve(__dirname, '..', '.hostnames');
+const stdout = execSync(`cat ${hostnamesPath}`);
 const kafkaHost = stdout.toString().trim();
 
 const consumerOptions = {
@@ -26,14 +28,14 @@ const consumerOptions = {
 };
 
 
-const consumerGroup = new kafka.ConsumerGroup(Object.assign({id: 'cm_group_1_member1'}, consumerOptions), ['cm']);
+const consumerGroup = new kafka.ConsumerGroup(Object.assign({id: 'cm_group_1_member1'}, consumerOptions), ['cm', 'routing', 'ams_stream']);
 
 consumerGroup.on('error', onError);
 consumerGroup.on('message', onMessage);
 consumerGroup.on('connect', function () {
     console.log(`${consumerGroup.memberId} connected`);
-    // Read from the start
-    consumerGroup.setOffset('cm', 0, 0);
+    // Read from the start for partition 0
+    // consumerGroup.setOffset('cm', 0, 0);
 });
 
 function onError(error) {
@@ -49,7 +51,7 @@ function onMessage(message) {
     );
 }
 
-var consumerGroup2 = new kafka.ConsumerGroup(Object.assign({id: 'cm_group_1_member2' }, consumerOptions), ['cm']);
+var consumerGroup2 = new kafka.ConsumerGroup(Object.assign({id: 'cm_group_1_member2' }, consumerOptions), ['cm', 'routing', 'ams_stream']);
 consumerGroup2.on('error', onError);
 consumerGroup2.on('message', onMessage);
 consumerGroup2.on('connect', function () {
