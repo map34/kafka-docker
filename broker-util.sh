@@ -2,7 +2,7 @@
 
 set -e
 
-CONTAINERS=$(docker ps | grep -E "start-kafka.sh.*Up" | awk '{print $1}')
+CONTAINERS=$(docker ps | grep -E ".*Up.*kafka-docker_kafka.*" | awk '{print $1}')
 
 
 function printBrokerList() {
